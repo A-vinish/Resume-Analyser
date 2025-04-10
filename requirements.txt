@@ -1,0 +1,12 @@
+streamlit
+pymysql
+pyresparser
+nltk
+spacy
+pdfminer.six
+streamlit-tags
+pillow
+pafy
+yt-dlp
+plotly
+
