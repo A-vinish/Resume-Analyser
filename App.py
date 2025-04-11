@@ -26,15 +26,21 @@ from streamlit_tags import st_tags
 from PIL import Image
 import pymysql
 from Courses import ds_course,web_course,android_course,ios_course,uiux_course,resume_videos,interview_videos
-import pafy #for uploading youtube videos
+import yt_dlp
+# import pafy
+# pafy.set_backend("internal") #  IMPORTANT for videos
 import plotly.express as px #to create visualisations at the admin session
 import nltk
 nltk.download('stopwords')
 
 
-def fetch_yt_video(link):
-    video = pafy.new(link)
-    return video.title
+def fetch_yt_video(url):
+
+        with yt_dlp.YoutubeDL() as ydl:
+            info = ydl.extract_info(url, download=False)
+            print(f"Title: {info['title']}")
+            print(f"Uploader: {info['uploader']}")
+            print(f"Views: {info['view_count']}")
 
 def get_table_download_link(df,filename,text):
     """Generates a link allowing the data in a given panda dataframe to be downloaded
@@ -339,7 +345,7 @@ def run():
                 st.header("**Bonus Video for Resume Writing Tips💡**")
                 resume_vid = random.choice(resume_videos)
                 res_vid_title = fetch_yt_video(resume_vid)
-                st.subheader("✅ **"+res_vid_title+"**")
+                st.subheader("✅ **" + str(res_vid_title or "No Title Found") + "**")
                 st.video(resume_vid)
 
 
@@ -348,7 +354,7 @@ def run():
                 st.header("**Bonus Video for Interview Tips💡**")
                 interview_vid = random.choice(interview_videos)
                 int_vid_title = fetch_yt_video(interview_vid)
-                st.subheader("✅ **" + int_vid_title + "**")
+                st.subheader("**" + str(int_vid_title or "No Title Found") + "**")
                 st.video(interview_vid)
 
                 connection.commit()
@@ -376,22 +382,29 @@ def run():
                 ## Admin Side Data
                 query = 'select * from user_data;'
                 plot_data = pd.read_sql(query, connection)
-
-                ## Pie chart for predicted field recommendations
-                labels = plot_data.Predicted_Field.unique()
-                print(labels)
-                values = plot_data.Predicted_Field.value_counts()
-                print(values)
+                
+                # Ensure all relevant columns are strings (not bytes)
+                plot_data['Predicted_Field'] = plot_data['Predicted_Field'].apply(lambda x: x.decode() if isinstance(x, bytes) else str(x))
+                plot_data['User_level'] = plot_data['User_level'].apply(lambda x: x.decode() if isinstance(x, bytes) else str(x))
+                
+                # Plot: Predicted Field Pie Chart
                 st.subheader("**Pie-Chart for Predicted Field Recommendation**")
-                fig = px.pie(df, values=values, names=labels, title='Predicted Field according to the Skills')
-                st.plotly_chart(fig)
+                fig1 = px.pie(
+                    plot_data,
+                    names='Predicted_Field',
+                    title='Predicted Field according to the Skills'
+                )
+                st.plotly_chart(fig1, use_container_width=True)
 
-                ### Pie chart for User's👨‍💻 Experienced Level
-                labels = plot_data.User_level.unique()
-                values = plot_data.User_level.value_counts()
+                # Plot: User Level Pie Chart
                 st.subheader("**Pie-Chart for User's Experienced Level**")
-                fig = px.pie(df, values=values, names=labels, title="Pie-Chart📈 for User's👨‍💻 Experienced Level")
-                st.plotly_chart(fig)
+                fig2 = px.pie(
+                    plot_data,
+                    names='User_level',
+                    title="Pie-Chart📈 for User's👨‍💻 Experienced Level"
+                )
+                st.plotly_chart(fig2, use_container_width=True)
+
 
 
             else:
