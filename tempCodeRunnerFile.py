@@ -1,0 +1,2 @@
+ta['Predicted_Field'].apply(lambda x: x.decode() if isinstance(x, bytes) else str(x))
+                plot_data['User_level'] = plot_data['User_level'].apply(lambda x: x.decode() if isinstance(x, bytes) else str(x))
