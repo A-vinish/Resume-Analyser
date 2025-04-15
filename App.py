@@ -41,6 +41,7 @@ def fetch_yt_video(url):
             print(f"Title: {info['title']}")
             print(f"Uploader: {info['uploader']}")
             print(f"Views: {info['view_count']}")
+            return info['title']
 
 def get_table_download_link(df,filename,text):
     """Generates a link allowing the data in a given panda dataframe to be downloaded
