@@ -328,18 +328,23 @@ def run():
                 st.warning("** Note: This score is calculated based on the content that you have in your Resume. **")
                 st.balloons()
 
-                insert_data(
-                    resume_data.get('name', ''),
-                    resume_data.get('email', ''),
-                    str(resume_score),
-                    timestamp,
-                    str(resume_data.get('no_of_pages', '')),
-                    reco_field,
-                    cand_level,
-                    str(resume_data.get('skills', [])),
-                    str(recommended_skills),
-                    str(rec_course)
-                )
+                email = resume_data.get('email')
+                if not email:
+                    st.error("❌ Email not found in the resume. Please check your file.")
+                else:
+                    insert_data(
+                        resume_data.get('name') or '',
+                        email,
+                        str(resume_score),
+                        timestamp,
+                        str(resume_data.get('no_of_pages', '')),
+                        reco_field,
+                        cand_level,
+                        str(resume_data.get('skills', [])),
+                        str(recommended_skills),
+                        str(rec_course)
+                    )
+
 
 
                 ## Resume writing video
